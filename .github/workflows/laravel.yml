@@ -1,0 +1,64 @@
+name: Laravel
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  laravel-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+            matrix:
+                php: [7.3]
+                laravel: [5.5.*]
+                dependency-version: [prefer-stable]
+                os: [ubuntu-latest]
+                include:
+                   - laravel: 5.5.*
+                     testbench: 3.5.*
+                exclude:
+                    - laravel: 5.5.*
+                      php: 7.4
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v1
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+        coverage: none
+    - name: Install dependencies
+      run: |
+        composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+        composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+    - uses: actions/checkout@v2
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Generate key
+      run: |
+        php artisan key:generate
+        php artisan config:clear
+        php artisan config:cache
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14'
+    - name: Install, build, test
+      run: |
+        npm install
+        npm run dev
+    - name: start serve
+      run: php artisan serve
+
