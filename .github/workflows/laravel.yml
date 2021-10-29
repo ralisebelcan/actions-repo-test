@@ -49,9 +49,9 @@ jobs:
         npm install
         npm run dev
       continue-on-error: true
-    - name: start serve
-      run: php artisan serve
-      continue-on-error: true
+#    - name: start serve
+#      run: php artisan serve
+#      continue-on-error: true
 
     - name: Deployment
       uses: appleboy/ssh-action@master
