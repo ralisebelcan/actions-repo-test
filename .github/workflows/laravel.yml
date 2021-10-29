@@ -54,7 +54,7 @@ jobs:
       continue-on-error: true
 
     - name: Deployment
-      uses: appleboy/ssh-action@main
+      uses: appleboy/ssh-action@master
       with:
         host: 54.175.193.9
         key: ${{ secrets.TEST_KEY }}
