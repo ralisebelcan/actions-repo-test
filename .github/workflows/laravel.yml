@@ -48,6 +48,18 @@ jobs:
       run: |
         npm install
         npm run dev
+      continue-on-error: true
     - name: start serve
       run: php artisan serve
+      continue-on-error: true
 
+    - name: Deployment
+      uses: appleboy/ssh-action@main
+      with:
+        host: 54.175.193.9
+        key: ${{ secrets.TEST_KEY }}
+        username: ${{ secrets.TEST_NAME }}
+        script: |
+          cd /home/ubuntu/git/actions-repo-test/
+          git checkout -f 
+          git pull
